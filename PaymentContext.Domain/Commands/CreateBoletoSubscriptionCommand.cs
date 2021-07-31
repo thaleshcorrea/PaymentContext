@@ -1,4 +1,7 @@
-﻿using PaymentContext.Domain.Enums;
+﻿using Flunt.Notifications;
+using Flunt.Validations;
+using PaymentContext.Domain.Enums;
+using PaymentContext.Shared.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PaymentContext.Domain.Commands
 {
-    public class CreateBoletoSubscriptionCommand
+    public class CreateBoletoSubscriptionCommand : Notifiable<Notification>, ICommand
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -34,5 +37,20 @@ namespace PaymentContext.Domain.Commands
         public string State { get; set; }
         public string Country { get; set; }
         public string ZipCode { get; set; }
+
+        // Fail fast validations
+        // Validacoes no que eu conheco como DTOs para validar se os dados da requisicao estao corretos e retorna imediatamente para o cliente
+        // antes de chegar no meu dominio, isso evita que algumas requisicoes no banco sejam feitas
+        // como uma validacao que possuo na minha regra de negocio, para validar se o cliente ja esta cadastrado pelo cpf
+        // sao validacoes simples, somente de dados em branco, valores entre outros, mas dependendo do cenario sao muito boas
+        public void Validate()
+        {
+            AddNotifications(new Contract<CreateBoletoSubscriptionCommand>()
+                .Requires()
+                .IsGreaterOrEqualsThan(FirstName, 3, "Name.FirstName", "Nome deve conter no minimo 3 caracteres")
+                .IsGreaterOrEqualsThan(LastName, 3, "Name.LastName", "Sobrenome deve conter no minimo 3 caracteres")
+                .IsLowerOrEqualsThan(FirstName, 40, "Name.FirstName", "Nome deve conter até 40 caracteres")
+            );
+        }
     }
 }
