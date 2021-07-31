@@ -36,8 +36,9 @@ namespace PaymentContext.Domain.Entities
                     hasSubscriptionActive = true;
                 }
             }
+            _subscriptions.Add(subscription);
 
-            AddNotifications(new Contract<Student>()
+            AddNotifications(new Contract<Subscription>()
                 .Requires()
                 .IsFalse(hasSubscriptionActive, "Student.Subscriptions", "Você já tem uma assinatura ativa")
                 .IsGreaterThan(subscription.Payments.Count, 0, "Student.Subscription.Payments", "Esta assinatura não possui pagamentos"));
